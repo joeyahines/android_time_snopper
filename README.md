@@ -1,7 +1,7 @@
-#Android Time Forensics
+# Android Time Forensics
 This projects uses ADB to detect time shifts on a target Android device.
 
-##Requirements
+## Requirements
 Python 3.6+
 
 [pure-python-adb](https://github.com/Swind/pure-python-adb)
