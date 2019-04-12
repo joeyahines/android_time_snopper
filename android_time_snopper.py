@@ -6,6 +6,7 @@ Android Time Forensics using ADB
 
 import datetime
 from adb.client import Client as AdbClient
+from adb.device import Device
 import argparse
 import pytz
 
@@ -72,11 +73,23 @@ def print_properties(device):
         print(property, properties[property])
 
 
+def pull_callog(device: Device):
+    """
+    Gets the sqlite3 db call log from the devce
+    :param device: device to grab tools
+    :return:
+    """
+
+    device.pull("/data/data/com.android.providers.contacts/databases/calllog.db", "callog-%d.db" %
+                datetime.datetime.now().timestamp())
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
 
     # Open up ADB client
     client = AdbClient(args.adb_addr, port=args.adb_port)
+
 
     # Get the device selection from the user
     device = get_device(client)
@@ -100,3 +113,12 @@ if __name__ == "__main__":
             print("Time Delta: ", target_time - system_time)
     else:
         print("No time shift found")
+
+    try:
+        device.root()
+    except Exception as e:
+        print(e)
+
+    pull_callog(device)
+
+    # TODO add sqlite parsing code
