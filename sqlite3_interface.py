@@ -50,7 +50,7 @@ class DataBaseInterface:
         """
         cur = self.conn.execute("SELECT _id,%s FROM %s" % (column[0], table_name))
 
-        print("ID\t\t%s" % column)
+        print("ID\t\t%s" % column[0])
         for row in cur.fetchall():
             print("%s\t\t%s" % (row[0], row[1]))
 
@@ -68,11 +68,11 @@ class DataBaseInterface:
             id = row[0]
             time_stamp = row[1]
 
-            time_stamp = int(time_stamp / pow(10, 3))
+            time_stamp = time_stamp / pow(10, 3)
 
             new_time = datetime.datetime.fromtimestamp(time_stamp) + datetime.timedelta(time_shift)
 
-            new_time_stamp = round(new_time.timestamp(), 3) / pow(10, -3)
+            new_time_stamp = int(round(new_time.timestamp(), 3) * pow(10, 3))
 
             self.conn.execute("UPDATE %s SET %s=? WHERE _id=?" % (table_name, column[0]), (new_time_stamp, id))
             self.conn.commit()

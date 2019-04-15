@@ -106,7 +106,7 @@ def pull_file(device: Device, path: str):
 
     timestamp = datetime.datetime.now().timestamp()
     db_name = Path(path).name
-    file_name = "%d-%s" % (timestamp, db_name)
+    file_name = "%s-%s" % (timestamp, db_name)
     device.pull(path, file_name)
 
     return file_name

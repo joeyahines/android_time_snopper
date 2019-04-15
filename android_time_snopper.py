@@ -8,6 +8,8 @@ import argparse
 import pytz
 from adb_interface import *
 from sqlite3_interface import DataBaseInterface
+import hashlib
+import shutil
 
 # Command line arguments
 parser = argparse.ArgumentParser(description="Android Time Forensics Tool")
@@ -37,7 +39,8 @@ def detect_timeshift(target_time: datetime, system_time: datetime):
         print("No time shift found")
 
 
-def fix_database_timeshift(device: Device, target_time: datetime, system_time: datetime, database_path: str):
+def fix_database_timeshift(device: Device, target_time: datetime, system_time: datetime, database_path: str, table=None,
+                           column=None):
     """
     fixes the timeshift in a database, prints out results and then saves the changes to file
     :param device: device to grab the database from
@@ -51,15 +54,18 @@ def fix_database_timeshift(device: Device, target_time: datetime, system_time: d
 
     # Get the database from the device
     file_name = pull_file(device, database_path)
+    shutil.copy(file_name, file_name+".old")
 
     try:
         # Open database
         database_interface = DataBaseInterface(file_name)
 
         # Get table and column
-        table = get_table_choice(database_interface)
+        if table is None:
+            table = get_table_choice(database_interface)
 
-        column = get_column_to_time_shift(database_interface, table)
+        if column is None:
+            column = get_column_to_time_shift(database_interface, table)
 
         # Preform Time shift
         print("Old Time")
@@ -71,6 +77,10 @@ def fix_database_timeshift(device: Device, target_time: datetime, system_time: d
         # Close database
         database_interface.conn.close()
 
+        old_hash = hash_file(file_name + ".old")
+        new_hash = hash_file(file_name)
+        print("\nmd5 Hash of", file_name+".old", ":", old_hash)
+        print("md5 Hash of", file_name, ":", new_hash)
     except Exception as e:
         print(e)
 
@@ -124,6 +134,21 @@ def get_option_from_list(list: list, selection_text: str):
         input("Press enter to continue")
 
 
+def hash_file(file_name):
+    """
+    caculates the md5 hash of a file
+    :param file_name: file name
+    :return: md5 hash of file
+    """
+
+    hasher = hashlib.md5()
+    with open(file_name, 'rb') as file:
+        buf = file.read()
+        hasher.update(buf)
+
+    return hasher.hexdigest()
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
 
@@ -170,7 +195,8 @@ if __name__ == "__main__":
             # fix call log time shift
             elif menu_select == "c":
                 fix_database_timeshift(device, target_time, system_time,
-                                       "/data/data/com.android.providers.contacts/databases/calllog.db")
+                                       "/data/data/com.android.providers.contacts/databases/calllog.db", table="calls",
+                                       column=("date", "INTEGER"))
             # get time properties
             elif menu_select == "d":
                 print_time_properties(device)
