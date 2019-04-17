@@ -178,6 +178,8 @@ if __name__ == "__main__":
             print("c) Time Correct Call Log")
             print("d) Print Time Properties")
             print("e) Get Device Properties")
+            print("f) Get Device Settings")
+            print("g) Get Time Settings")
             print("x) Exit")
 
             # Do user selection
@@ -204,6 +206,10 @@ if __name__ == "__main__":
             # print device properties
             elif menu_select == "e":
                 print_properties(device)
+            elif menu_select == "f":
+                print_settings(device)
+            elif menu_select == "g":
+                print_time_settings(device)
             # exit
             elif menu_select == "x":
                 print("Bye!")

@@ -75,6 +75,27 @@ def print_properties(device: Device):
         print(property, properties[property])
 
 
+def print_settings(device: Device):
+    """
+    Prints the settings of the device
+    :param device: Android device
+    """
+
+    results = device.shell("settings list GLOBAL")
+
+    print(results)
+
+
+def print_time_settings(device: Device):
+    """
+    Print auto_time settings
+    :param device: Android device
+    """
+    results = device.shell("settings list GLOBAL | grep auto_time")
+
+    print(results)
+
+
 def print_time_properties(device: Device):
     """
     Prints the time properties
